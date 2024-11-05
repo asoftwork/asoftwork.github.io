@@ -1,0 +1,78 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Mocha Softworks</title>
+    <style>
+        body, html {
+            margin: 0;
+            overflow: hidden;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background-color: #1a1a1a;
+        }
+        canvas {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+        }
+        #overlay {
+            position: absolute;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255, 255, 255, 0);
+            font-size: 3rem;
+            opacity: 0;
+            transition: opacity 2s ease;
+            font-family: sans-serif;
+        }
+    </style>
+</head>
+<body>
+    <canvas id="mochaCanvas"></canvas>
+    <div id="overlay">
+        <h1 id="title">Mocha Softworks</h1>
+    </div>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+    <script>
+        const scene = new THREE.Scene();
+        const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
+        const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('mochaCanvas') });
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        const geometry = new THREE.SphereGeometry(1, 32, 32);
+        const material = new THREE.MeshStandardMaterial({ color: 0x6b4f4f });
+        const coffeeBean = new THREE.Mesh(geometry, material);
+        scene.add(coffeeBean);
+        const pointLight = new THREE.PointLight(0xffffff, 1);
+        pointLight.position.set(5, 5, 5);
+        scene.add(pointLight);
+        camera.position.z = 5;
+        let frame = 0;
+        const titleElement = document.getElementById('title');
+        function animate() {
+            requestAnimationFrame(animate);
+            coffeeBean.rotation.x += 0.01;
+            coffeeBean.rotation.y += 0.01;
+            frame++;
+            if (frame > 100) {
+                document.getElementById('overlay').style.opacity = '1';
+            }
+
+            renderer.render(scene, camera);
+        }
+
+        animate();
+        window.addEventListener('resize', () => {
+            renderer.setSize(window.innerWidth, window.innerHeight);
+            camera.aspect = window.innerWidth / window.innerHeight;
+            camera.updateProjectionMatrix();
+        });
+    </script>
+</body>
+</html>
