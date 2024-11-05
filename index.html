@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Mocha Softworks Animation</title>
+    <title>Mocha Softworks</title>
     <style>
         body, html {
             margin: 0;
@@ -29,6 +29,7 @@
         const camera = new THREE.PerspectiveCamera(75, window.innerWidth / window.innerHeight, 0.1, 1000);
         const renderer = new THREE.WebGLRenderer({ canvas: document.getElementById('mochaCanvas') });
         renderer.setSize(window.innerWidth, window.innerHeight);
+
         const particles = new THREE.BufferGeometry();
         const particleCount = 1000;
         const positions = new Float32Array(particleCount * 3);
@@ -53,17 +54,43 @@
         const particleSystem = new THREE.Points(particles, particleMaterial);
         scene.add(particleSystem);
         camera.position.z = 10;
+
+        const mouse = new THREE.Vector2(0, 0);
+        const targetPosition = new THREE.Vector3();
+
+        window.addEventListener('mousemove', (event) => {
+            // Normalize mouse coordinates to -1 to 1
+            mouse.x = (event.clientX / window.innerWidth) * 2 - 1;
+            mouse.y = -(event.clientY / window.innerHeight) * 2 + 1;
+        });
+
         function animate() {
             requestAnimationFrame(animate);
 
-            // Rotate particles for a swirling effect
             particleSystem.rotation.y += 0.002;
             particleSystem.rotation.z += 0.001;
 
+            for (let i = 0; i < particleCount; i++) {
+                // Adjust particle positions based on mouse position
+                const particlePosition = new THREE.Vector3(
+                    positions[i * 3],
+                    positions[i * 3 + 1],
+                    positions[i * 3 + 2]
+                );
+                particlePosition.x += (mouse.x * 2 - Math.random()) * 0.1; // Adjust the influence
+                particlePosition.y += (mouse.y * 2 - Math.random()) * 0.1;
+
+                positions[i * 3] = particlePosition.x;
+                positions[i * 3 + 1] = particlePosition.y;
+                positions[i * 3 + 2] = particlePosition.z;
+            }
+
+            particles.setAttribute('position', new THREE.BufferAttribute(positions, 3));
             renderer.render(scene, camera);
         }
 
         animate();
+
         window.addEventListener('resize', () => {
             renderer.setSize(window.innerWidth, window.innerHeight);
             camera.aspect = window.innerWidth / window.innerHeight;
